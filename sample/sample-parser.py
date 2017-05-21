@@ -18,22 +18,22 @@ def main():
     while True:
         ret = p.parse_step()
         if   ret == pyauparser.ParseResultType.ACCEPT:
-            print "[Accept]"
+            print("[Accept]")
             break
         elif ret == pyauparser.ParseResultType.SHIFT:
             token = p.token
-            print "[Shift] {0} '{1}' ({2}:{3})".format(
+            print("[Shift] {0} '{1}' ({2}:{3})".format(
                     token.symbol.name, token.lexeme,
-                    token.position[0], token.position[1])
+                    token.position[0], token.position[1]))
         elif ret == pyauparser.ParseResultType.REDUCE:
-            print "[Reduce] {0}".format(p.reduction.production)
+            print("[Reduce] {0}".format(p.reduction.production))
         elif ret == pyauparser.ParseResultType.REDUCE_ELIMINATED:
-            print "[ReduceEliminated]"
+            print("[ReduceEliminated]")
         elif ret == pyauparser.ParseResultType.ERROR:
-            print "[Error] {0}".format(p.error_info)
+            print("[Error] {0}".format(p.error_info))
             return
 
-    print "done", p.position
+    print("done", p.position)
 
 
 if __name__ == "__main__":

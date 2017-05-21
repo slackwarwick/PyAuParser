@@ -1,8 +1,8 @@
 ﻿import os
 import sys
-import grammar
-from grammar import SymbolType, LALRActionType
-from lexer import Lexer, Token
+from . import grammar
+from .grammar import SymbolType, LALRActionType
+from .lexer import Lexer, Token
 
 
 class ParseResultType:
@@ -93,8 +93,8 @@ class ProductionHandler(object):
             # If a grammar is provided, a key of handler_map could be string.
             # String keys will be resolve to index as following.
             self.handler_map = {}
-            for k, v in handler_map.iteritems():
-                if isinstance(k, str) or isinstance(k, unicode):
+            for k, v in handler_map.items():
+                if isinstance(k, str) or isinstance(k, str):
                     rule = grammar.get_production(k).index
                     self.handler_map[rule] = v
                 else:
@@ -187,7 +187,7 @@ class Parser(object):
         if action is None:
             # Syntax error_info by an unexpected symbol
             expected_symbols = []
-            for action in self.state.actions.itervalues():
+            for action in self.state.actions.values():
                 if action.symbol.type in (SymbolType.TERMINAL,
                                           SymbolType.END_OF_FILE,
                                           SymbolType.GROUP_START,
@@ -217,7 +217,7 @@ class Parser(object):
             if trimmed:
                 top_state = self.stack[-2].state
             else:
-                for i in xrange(len(production.handles)):
+                for i in range(len(production.handles)):
                     handles.insert(0, self.stack.pop(-1))
                 top_state = self.stack[-1].state
 

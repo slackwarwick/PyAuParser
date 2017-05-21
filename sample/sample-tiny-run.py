@@ -16,12 +16,12 @@ def evaluate(grammar, node):
             lambda n, c: e(c[3]) if e(c[1]) else e(c[5]),
         r('<repeat stmt> ::= REPEAT <stmt seq> UNTIL <exp>'):
             lambda n, c: any((e(c[1]), e(c[3]))[1] is False
-                             for x in xrange(100000)),
+                             for x in range(100000)),
         r('<assign stmt> ::= ID := <exp>'):
             lambda n, c: vars.__setitem__(c[0].token.lexeme, e(c[2])),
         r('<read stmt> ::= READ ID'):
             lambda n, c: vars.__setitem__(c[1].token.lexeme,
-                                          int(raw_input("? "))),
+                                          int(input("? "))),
         r('<write stmt> ::= WRITE <exp>'):
             lambda n, c: write(e(c[1])),
         r('<exp> ::= <simple exp> < <simple exp>'):
@@ -54,7 +54,7 @@ def evaluate(grammar, node):
             return e(node.childs[0])
 
     def write(v):
-        print v
+        print(v)
 
     e(node)
 
@@ -63,17 +63,17 @@ def main():
     grammar = pyauparser.Grammar.load_file("data/tiny.egt")
 
     def run(file):
-        print "* RUN:", file
+        print("* RUN:", file)
         try:
             tree = pyauparser.parse_file_to_tree(grammar, file)
         except pyauparser.ParseError as e:
-            print e
+            print(e)
             return False
         evaluate(grammar, tree)
         return True
 
     run("data/tiny_sample_1.txt")
-    print
+    print()
     run("data/tiny_sample_2.txt")
 
 if __name__ == "__main__":

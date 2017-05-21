@@ -1,7 +1,7 @@
 import sys
 import unittest
 import codecs
-import StringIO
+import io
 import pyauparser
 
 class TestGrammar(unittest.TestCase):
@@ -23,9 +23,9 @@ class TestGrammar(unittest.TestCase):
             self.grammar.export_to_py(f)
         import temp_operator_grammar
         grammar2 = temp_operator_grammar.load()
-        gf1 = StringIO.StringIO()
+        gf1 = io.StringIO()
         self.grammar.export_to_txt(gf1)
-        gf2 = StringIO.StringIO()
+        gf2 = io.StringIO()
         grammar2.export_to_txt(gf2)
         self.assertEqual(gf1.getvalue(), gf2.getvalue())
 

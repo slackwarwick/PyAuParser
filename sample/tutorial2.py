@@ -23,9 +23,9 @@ def main():
 
     try:
         pyauparser.parse_string(g, "-2*(3+4)-5", handler=h)
-        print "Result = {0}".format(h.result)
+        print("Result = {0}".format(h.result))
     except pyauparser.ParseError as e:
-        print e
+        print(e)
 
 
 if __name__ == "__main__":

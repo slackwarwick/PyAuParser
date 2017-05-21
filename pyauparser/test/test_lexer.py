@@ -34,7 +34,7 @@ class TestLexer(unittest.TestCase):
 
         tokens = lexer.read_token_all()
         terminals = [t.lexeme for t in tokens if t.symbol.type == pyauparser.SymbolType.TERMINAL]
-        self.assertEqual(terminals, [u'a', u'b', u'c', u'd'])
+        self.assertEqual(terminals, ['a', 'b', 'c', 'd'])
 
     def test_html(self):
         lexer = pyauparser.Lexer(self.grammar_group)
@@ -54,7 +54,7 @@ class TestLexer(unittest.TestCase):
 
         tokens = lexer.read_token_all()
         terminals = [t.lexeme for t in tokens if t.symbol.type == pyauparser.SymbolType.TERMINAL]
-        self.assertEqual(terminals[:-1], [u'a', u'=', u'none', u',', u'b', u'='])
+        self.assertEqual(terminals[:-1], ['a', '=', 'none', ',', 'b', '='])
         self.assertEqual(terminals[-1][:6], "<html>")
         self.assertEqual(terminals[-1][-7:], "</html>")
 

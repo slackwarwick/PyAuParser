@@ -10,9 +10,9 @@ def main():
     try:
         tree = pyauparser.parse_string_to_tree(g, "-2*(3+4)-5")
         tree.dump()
-        print
+        print()
     except pyauparser.ParseError as e:
-        print e
+        print(e)
         return
 
     # evaluate a parse tree by traverse nodes
@@ -36,7 +36,7 @@ def main():
         return e(node)
 
     result = evaluate(tree)
-    print "Result = {0}".format(result)
+    print("Result = {0}".format(result))
 
 
 if __name__ == "__main__":

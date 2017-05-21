@@ -3,7 +3,7 @@
 import os
 import sys
 import getopt
-import StringIO
+import io
 import codecs
 import pyauparser
 
@@ -24,24 +24,24 @@ def c_show(cmd_args):
     g = pyauparser.Grammar.load_file(egt_path)
 
     if mode == "":
-        stio = StringIO.StringIO()
+        stio = io.StringIO()
         g.export_to_txt(stio)
-        print stio.getvalue().encode()
+        print(stio.getvalue().encode())
     elif mode == "-s":
-        print "* symbols"
-        for k, v in sorted(g.symbols.iteritems()):
-            print('\t{0}\t{1}'.format(k, repr(v.id)))
+        print("* symbols")
+        for k, v in sorted(g.symbols.items()):
+            print(('\t{0}\t{1}'.format(k, repr(v.id))))
     elif mode == "-p":
         g = pyauparser.Grammar.load_file(egt_path)
-        print "* productions"
-        for k, v in sorted(g.productions.iteritems()):
-            print('\t{0}\t{1}'.format(k, repr(v.id)))
+        print("* productions")
+        for k, v in sorted(g.productions.items()):
+            print(('\t{0}\t{1}'.format(k, repr(v.id))))
     elif mode == "-P":
         g = pyauparser.Grammar.load_file(egt_path)
-        print "h = {"
-        for k, v in sorted(g.productions.iteritems()):
-            print('\t{0}: None,'.format(repr(v.id)))
-        print "}"
+        print("h = {")
+        for k, v in sorted(g.productions.items()):
+            print(('\t{0}: None,'.format(repr(v.id))))
+        print("}")
 
 
 def c_class(cmd_args):
@@ -60,11 +60,11 @@ def c_class(cmd_args):
         f = codecs.open(py_path, "w", encoding)
         g.export_to_py(f)
         f.close()
-        print("{0}: done".format(py_path))
+        print(("{0}: done".format(py_path)))
     else:
-        f = StringIO.StringIO()
+        f = io.StringIO()
         g.export_to_py(f)
-        print(f.getvalue())
+        print((f.getvalue()))
 
 
 def c_lex(cmd_args):
@@ -84,11 +84,11 @@ def c_lex(cmd_args):
 
     while True:
         position, token = lexer.position, lexer.read_token()
-        print (token.symbol.name, token.lexeme, position)
+        print((token.symbol.name, token.lexeme, position))
         if   token.symbol.type == pyauparser.SymbolType.END_OF_FILE:
             break
         elif token.symbol.type == pyauparser.SymbolType.ERROR:
-            print "ERROR:", token.lexeme
+            print("ERROR:", token.lexeme)
             return
 
 
@@ -114,19 +114,19 @@ def c_parse(cmd_args):
     while True:
         ret = p.parse_step()
         if   ret == pyauparser.ParseResultType.ACCEPT:
-            print "Accept"
+            print("Accept")
             break
         elif ret == pyauparser.ParseResultType.SHIFT:
             token = p.token
-            print "Shift\t{0} ({1}:{2})".format(
-                token, p.line, p.column)
+            print("Shift\t{0} ({1}:{2})".format(
+                token, p.line, p.column))
         elif ret == pyauparser.ParseResultType.REDUCE:
-            print "Reduce\t{0}".format(p.reduction.production)
+            print("Reduce\t{0}".format(p.reduction.production))
         elif ret == pyauparser.ParseResultType.REDUCE_ELIMINATED:
-            print "ReduceEliminated"
+            print("ReduceEliminated")
         elif ret == pyauparser.ParseResultType.ERROR:
-            print "Error\t'{0}' ({1}:{2})".format(
-                p.error_info, p.line, p.column)
+            print("Error\t'{0}' ({1}:{2})".format(
+                p.error_info, p.line, p.column))
             return
 
 
@@ -158,32 +158,32 @@ def c_tree(cmd_args):
 
 
 def usage():
-    print "auparser command ..."
-    print "  h[elp]     : show help"
-    print
-    print "  s[how]     : show information from a grammar file"
-    print "    [options] egt"
-    print "    -s show a symbol list"
-    print "    -p show a production rule list"
-    print "    -P show a production rule list as py dictionary"
-    print
-    print "  c[lass]    : create a module embedding a grammar file"
-    print "    [options] egt [output]"
-    print "    -e set output encoding"
-    print
-    print "  l[ex]      : show lexing procedure"
-    print "    [options] egt data"
-    print "    -e set input encoding"
-    print
-    print "  p[arse]    : show parsing procedure"
-    print "    [options] egt data"
-    print "    -e set input encoding"
-    print "    -t use trim reduction"
-    print
-    print "  t[ree]     : print a tree built through parsing data"
-    print "    [options] egt data"
-    print "    -e set input encoding"
-    print "    -s use a simplified tree builder"
+    print("auparser command ...")
+    print("  h[elp]     : show help")
+    print()
+    print("  s[how]     : show information from a grammar file")
+    print("    [options] egt")
+    print("    -s show a symbol list")
+    print("    -p show a production rule list")
+    print("    -P show a production rule list as py dictionary")
+    print()
+    print("  c[lass]    : create a module embedding a grammar file")
+    print("    [options] egt [output]")
+    print("    -e set output encoding")
+    print()
+    print("  l[ex]      : show lexing procedure")
+    print("    [options] egt data")
+    print("    -e set input encoding")
+    print()
+    print("  p[arse]    : show parsing procedure")
+    print("    [options] egt data")
+    print("    -e set input encoding")
+    print("    -t use trim reduction")
+    print()
+    print("  t[ree]     : print a tree built through parsing data")
+    print("    [options] egt data")
+    print("    -e set input encoding")
+    print("    -s use a simplified tree builder")
 
 
 def main():
@@ -207,7 +207,7 @@ def main():
     elif cmd in ("t", "tree"):
         c_tree(cmd_args)
     else:
-        print "Unknown command. use help."
+        print("Unknown command. use help.")
         sys.exit(2)
 
 if __name__ == "__main__":

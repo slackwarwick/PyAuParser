@@ -11,21 +11,21 @@ def main():
     g.get_production('<List> ::= [ <List1> ]').sr_merge_child =-True
     g.get_production('<List> ::= { <List2> }').sr_merge_child =-True
 
-    print "********** TreeBuilder [a,b,c] **********"
+    print("********** TreeBuilder [a,b,c] **********")
     pyauparser.parse_string_to_tree(g, "[a,b,c]").dump()
-    print
+    print()
 
-    print "********** SimplifiedTreeBuilder [a,b,c] **********"
+    print("********** SimplifiedTreeBuilder [a,b,c] **********")
     pyauparser.parse_string_to_stree(g, "[a,b,c]").dump()
-    print
+    print()
 
-    print "********** TreeBuilder {a;b;c;} **********"
+    print("********** TreeBuilder {a;b;c;} **********")
     pyauparser.parse_string_to_tree(g, "{a;b;c;}").dump()
-    print
+    print()
 
-    print "********** SimplifiedTreeBuilder {a;b;c;} **********"
+    print("********** SimplifiedTreeBuilder {a;b;c;} **********")
     pyauparser.parse_string_to_stree(g, "{a;b;c;}").dump()
-    print
+    print()
 
 
 if __name__ == "__main__":

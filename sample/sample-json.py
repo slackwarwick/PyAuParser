@@ -52,19 +52,19 @@ def load_json_show_tree(file_path):
 def main():
     file_path = "Data/JSON_sample_1.txt"
 
-    print "***** json.loads *****"
+    print("***** json.loads *****")
     a = json.loads(open(file_path).read())
     pprint.pprint(a)
-    print
+    print()
     
-    print "***** load_json *****"
+    print("***** load_json *****")
     b = load_json(file_path)
     pprint.pprint(b)
-    print
+    print()
 
-    print "***** load_json_show_tree *****"
+    print("***** load_json_show_tree *****")
     load_json_show_tree(file_path)
-    print
+    print()
 
 
 if __name__ == "__main__":

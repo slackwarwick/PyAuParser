@@ -1,6 +1,6 @@
 import os
 import sys
-import grammar
+from . import grammar
 
 
 class Token(object):
@@ -32,7 +32,7 @@ class Lexer(object):
             File_or_path could be file object or file name.
         """
         if (isinstance(file_or_path, str) or
-            isinstance(file_or_path, unicode)):
+            isinstance(file_or_path, str)):
             import codecs
             if encoding:
                 self._load(codecs.open(file_or_path, encoding=encoding), True)
@@ -44,13 +44,13 @@ class Lexer(object):
     def load_string(self, s):
         """ Load a string to lexer.
         """
-        import StringIO
-        self._load(StringIO.StringIO(s), s is unicode)
+        import io
+        self._load(io.StringIO(s), s is str)
 
     def _load(self, file, is_unicode):
         self.file = file
         self.is_unicode = is_unicode
-        self.buf = u"" if is_unicode else str()
+        self.buf = "" if is_unicode else str()
         self.buf_cur = 0
         self.buf_remain = 0
         self.line = 1
@@ -86,7 +86,7 @@ class Lexer(object):
             self.buf_cur += n
             self.buf_remain -= n
         else:
-            self.buf = u"" if self.is_unicode else str()
+            self.buf = "" if self.is_unicode else str()
             self.buf_cur = 0
             self.buf_remain = 0
 
@@ -152,7 +152,7 @@ class Lexer(object):
 
             # check if a start of new group
             if token.symbol.type == grammar.SymbolType.GROUP_START:
-                symbol_group = [g for g in self.grammar.symbolgroups.itervalues() if g.start == token.symbol][0]
+                symbol_group = [g for g in self.grammar.symbolgroups.values() if g.start == token.symbol][0]
                 if len(self.group_stack) == 0:
                     nest_group = True
                 else:

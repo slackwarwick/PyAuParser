@@ -1,8 +1,8 @@
 ﻿import os
 import sys
-import lexer
-import parser
-from grammar import SymbolType
+from . import lexer
+from . import parser
+from .grammar import SymbolType
 
 
 class TreeNode(object):
@@ -24,15 +24,15 @@ class TreeNode(object):
 
     def dump(self, depth=0):
         if self.is_non_terminal:
-            print u"{0}{1}".format("  " * depth,
-                                   self.production)
+            print("{0}{1}".format("  " * depth,
+                                   self.production))
             for c in self.childs:
                 c.dump(depth + 1)
         elif self.is_terminal:
-            print u"{0}{1}".format("  " * depth,
-                                   self.token)
+            print("{0}{1}".format("  " * depth,
+                                   self.token))
         else:
-            print u"{0} None".format("  " * depth)
+            print("{0} None".format("  " * depth))
 
 
 class TreeBuilder(object):

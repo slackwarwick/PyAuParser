@@ -4,7 +4,7 @@ import sys
 
 # get a name of enumeration from a value of it
 def get_enum_name(cls, value):
-    return [k for k, v in cls.__dict__.iteritems() if v == value][0]
+    return [k for k, v in cls.__dict__.items() if v == value][0]
 
 
 class Property(object):
@@ -18,7 +18,7 @@ class Property(object):
         self.value = value
 
     def __repr__(self):
-        return u"Property({0})".format(u", ".join((
+        return "Property({0})".format(", ".join((
             repr(self.index), repr(self.name), repr(self.value))))
 
     def __str__(self):
@@ -37,7 +37,7 @@ class CharacterSet(object):
         self.ranges = ranges
 
     def __repr__(self):
-        return u"CharacterSet({0})".format(u", ".join((
+        return "CharacterSet({0})".format(", ".join((
             repr(self.index), repr(self.uniplane), repr(self.ranges))))
 
     def __str__(self):
@@ -58,14 +58,14 @@ class Symbol(object):
     @property
     def id(self):
         if self.type == SymbolType.NON_TERMINAL:
-            return u"<{0}>".format(self.name)
+            return "<{0}>".format(self.name)
         elif self.type == SymbolType.TERMINAL:
             return self.name
         else:
-            return u"({0})".format(self.name)
+            return "({0})".format(self.name)
 
     def __repr__(self):
-        return u"Symbol({0})".format(u", ".join((
+        return "Symbol({0})".format(", ".join((
             repr(self.index), repr(self.name), repr(self.type))))
 
     def __str__(self):
@@ -101,7 +101,7 @@ class SymbolGroup(object):
         self.nesting_groups = nesting_groups
 
     def __repr__(self):
-        return u"Symbol({0})".format(u", ".join((
+        return "Symbol({0})".format(", ".join((
             repr(self.index), repr(self.name), repr(self.container.index),
             repr(self.start.index), repr(self.end.index),
             repr(self.advance_mode), repr(self.ending_mode),
@@ -144,7 +144,7 @@ class Production(object):
             self.head.id, " ".join(h.id for h in self.handles))
 
     def __repr__(self):
-        return u"Production({0})".format(u", ".join((
+        return "Production({0})".format(", ".join((
             repr(self.index), repr(self.head.index),
             repr([h.index for h in self.handles]))))
 
@@ -163,7 +163,7 @@ class DFAState(object):
         self.edges = edges
 
     def __repr__(self):
-        return u"DFAState({0})".format(u", ".join((
+        return "DFAState({0})".format(", ".join((
             repr(self.index),
             repr(self.accept_symbol.index) if self.accept_symbol else "None",
             repr(self.edges))))
@@ -184,7 +184,7 @@ class DFAEdge(object):
         self.target = target
 
     def __repr__(self):
-        return u"DFAEdge({0})".format(u", ".join((
+        return "DFAEdge({0})".format(", ".join((
             repr(self.charset.index), repr(self.target.index))))
 
     def __str__(self):
@@ -202,14 +202,14 @@ class LALRState(object):
         self.actions = actions
 
     def __repr__(self):
-        return u"LALRState({0})".format(u", ".join((
+        return "LALRState({0})".format(", ".join((
             repr(self.index),
-            "{" + ", ".join("{0}:{1}".format(repr(k), repr(v)) for k, v in sorted(self.actions.iteritems())) + "}")))
+            "{" + ", ".join("{0}:{1}".format(repr(k), repr(v)) for k, v in sorted(self.actions.items())) + "}")))
 
     def __str__(self):
         return "{0}: {1}".format(
             self.index,
-            "; ".join((str(a) for k, a in sorted(self.actions.iteritems()))))
+            "; ".join((str(a) for k, a in sorted(self.actions.items()))))
 
 
 class LALRAction(object):
@@ -222,7 +222,7 @@ class LALRAction(object):
         self.target = target
 
     def __repr__(self):
-        return u"LALRAction({0})".format(u", ".join((
+        return "LALRAction({0})".format(", ".join((
             repr(self.symbol.index) if self.symbol else "None",
             repr(self.type),
             repr(self.target.index) if self.target else "None")))
@@ -268,7 +268,7 @@ class Grammar(object):
            http://goldparser.org/doc/egt/index.htm
         """
         if (isinstance(file_or_path, str) or
-            isinstance(file_or_path, unicode)):
+            isinstance(file_or_path, str)):
             with open(file_or_path, "rb") as file:
                 return Grammar._load(file)
         else:
@@ -319,7 +319,7 @@ class Grammar(object):
         # start
         grm = Grammar()
         header = read_string()
-        if header != u"GOLD Parser Tables/v5.0":
+        if header != "GOLD Parser Tables/v5.0":
             raise Exception("Unknown Header: " + header)
 
         # read records
@@ -385,26 +385,26 @@ class Grammar(object):
         # To optimize lookup table process in lex and parse operations,
         # change index to references.
 
-        for g in self.symbolgroups.itervalues():
+        for g in self.symbolgroups.values():
             g.container = self.symbols[g.container]
             g.start = self.symbols[g.start]
             g.end = self.symbols[g.end]
             g.nesting_groups = tuple((self.symbolgroups[i] for i in g.nesting_groups))
 
-        for p in self.productions.itervalues():
+        for p in self.productions.values():
             p.head = self.symbols[p.head]
             p.handles = tuple((self.symbols[h] for h in p.handles))
 
         self.dfainit = self.dfastates[self.dfainit]
 
-        for s in self.dfastates.itervalues():
+        for s in self.dfastates.values():
             s.accept_symbol = self.symbols[s.accept_symbol] if s.accept_symbol else None
             s.edges = tuple((DFAEdge(self.charsets[e.charset], self.dfastates[e.target]) for e in s.edges))
 
         self.lalrinit = self.lalrstates[self.lalrinit]
 
-        for s in self.lalrstates.itervalues():
-            for a in s.actions.itervalues():
+        for s in self.lalrstates.values():
+            for a in s.actions.values():
                 a.symbol = self.symbols[a.symbol]
                 if   a.type == LALRActionType.SHIFT:
                     a.target = self.lalrstates[a.target]
@@ -413,18 +413,18 @@ class Grammar(object):
                 elif a.type == LALRActionType.GOTO:
                     a.target = self.lalrstates[a.target]
 
-        self.symbol_EOF = [s for s in self.symbols.itervalues() if s.type == SymbolType.END_OF_FILE][0]
-        self.symbol_Error = [s for s in self.symbols.itervalues() if s.type == SymbolType.ERROR][0]
+        self.symbol_EOF = [s for s in self.symbols.values() if s.type == SymbolType.END_OF_FILE][0]
+        self.symbol_Error = [s for s in self.symbols.values() if s.type == SymbolType.ERROR][0]
 
-        for s in self.symbols.itervalues():
+        for s in self.symbols.values():
             self.symbol_id_lookup[s.id] = s
 
-        for p in self.productions.itervalues():
+        for p in self.productions.values():
             self.production_id_lookup[p.id] = p
 
     def _build_dfa_lookup(self):
         # make a merged lookup-table for fast finding next state
-        for s in self.dfastates.itervalues():
+        for s in self.dfastates.values():
             edges_list = []
             for e in s.edges:
                 target_index = e.target.index
@@ -438,7 +438,7 @@ class Grammar(object):
     def _set_single_lexeme_symbol(self):
         # find terminals having only single lexeme.
         # (by finding dfa-state nodes has one-acyclic path from an initial state)
-        for s in self.dfastates.itervalues():
+        for s in self.dfastates.values():
             s.path_count = None
         self.dfainit.path_count = 1
         left_nodes = [self.dfainit]
@@ -460,11 +460,11 @@ class Grammar(object):
                     edge.target.path_count = 1
                     left_nodes.append(edge.target)
         symbol_path_count_map = {}
-        for s in self.dfastates.itervalues():
+        for s in self.dfastates.values():
             if s.path_count == 1 and s.accept_symbol:
                 symbol_path_count_map.setdefault(s.accept_symbol.index, 0)
                 symbol_path_count_map[s.accept_symbol.index] += 1
-        for symbol in self.symbols.itervalues():
+        for symbol in self.symbols.values():
             if symbol_path_count_map.get(symbol.index, 0) == 1:
                 symbol.single_lexeme = True
             else:
@@ -472,7 +472,7 @@ class Grammar(object):
 
     def _set_simplication_rule(self):
         # mark production flags
-        for p in self.productions.itervalues():
+        for p in self.productions.values():
             ts = [h for h in p.handles if h.type == SymbolType.TERMINAL]
             nts = [h for h in p.handles if h.type == SymbolType.NON_TERMINAL]
             its = [t for t in ts if not t.single_lexeme]
@@ -496,10 +496,10 @@ class Grammar(object):
         """
 
         def print_dict_values(name, container):
-            f.write(u"* {0}\n".format(name))
-            for v in container.itervalues():
-                f.write(u"\t{0}\n".format(v))
-            f.write(u"\n")
+            f.write("* {0}\n".format(name))
+            for v in container.values():
+                f.write("\t{0}\n".format(v))
+            f.write("\n")
 
         print_dict_values("properties", self.properties)
         print_dict_values("charsets", self.charsets)
@@ -507,10 +507,10 @@ class Grammar(object):
         print_dict_values("symbolgroups", self.symbolgroups)
         print_dict_values("productions", self.productions)
 
-        f.write(u"* initial states\n")
-        f.write(u"\tdfainit = {0}\n".format(self.dfainit.index))
-        f.write(u"\tlalrinit = {0}\n".format(self.lalrinit.index))
-        f.write(u"\n")
+        f.write("* initial states\n")
+        f.write("\tdfainit = {0}\n".format(self.dfainit.index))
+        f.write("\tlalrinit = {0}\n".format(self.lalrinit.index))
+        f.write("\n")
 
         print_dict_values("dfastates", self.dfastates)
         print_dict_values("lalrstates", self.lalrstates)
@@ -521,16 +521,16 @@ class Grammar(object):
         """
 
         def repr_dict(name, container):
-            f.write(u"\tgrm.{0} = {{\n".format(name))
-            for k, v in sorted(container.iteritems()):
-                f.write(u"\t\t{0}:{1},\n".format(repr(k), repr(v)))
-            f.write(u"\t}\n")
+            f.write("\tgrm.{0} = {{\n".format(name))
+            for k, v in sorted(container.items()):
+                f.write("\t\t{0}:{1},\n".format(repr(k), repr(v)))
+            f.write("\t}\n")
 
-        f.write(u"from pyauparser import *\n")
+        f.write("from pyauparser import *\n")
 
-        f.write(u"\n")
-        f.write(u"def load():\n")
-        f.write(u"\tgrm = Grammar()\n")
+        f.write("\n")
+        f.write("def load():\n")
+        f.write("\tgrm = Grammar()\n")
 
         repr_dict("properties", self.properties)
         repr_dict("charsets", self.charsets)
@@ -538,10 +538,10 @@ class Grammar(object):
         repr_dict("symbolgroups", self.symbolgroups)
         repr_dict("productions", self.productions)
 
-        f.write(u"\tgrm.dfainit = {0}\n".format(self.dfainit.index))
+        f.write("\tgrm.dfainit = {0}\n".format(self.dfainit.index))
         repr_dict("dfastates", self.dfastates)
-        f.write(u"\tgrm.lalrinit = {0}\n".format(self.lalrinit.index))
+        f.write("\tgrm.lalrinit = {0}\n".format(self.lalrinit.index))
         repr_dict("lalrstates", self.lalrstates)
 
-        f.write(u"\tgrm._process_after_load()\n")
-        f.write(u"\treturn grm\n")
+        f.write("\tgrm._process_after_load()\n")
+        f.write("\treturn grm\n")

@@ -45,7 +45,7 @@ def dfa_to_dot(g, dot_path, output_dot_path, output_png_path):
     of.write('s [ label="" shape="plaintext" ]\n'.format())
 
     # nodes
-    for s in g.dfastates.itervalues():
+    for s in g.dfastates.values():
         if s.accept_symbol:
             of.write('n{0} [ label="{1}" shape="doublecircle" ]\n'.format(
                 s.index, s.accept_symbol.name))
@@ -55,7 +55,7 @@ def dfa_to_dot(g, dot_path, output_dot_path, output_png_path):
 
     # transition
     of.write('s -> n{0} [ label=" start"]\n'.format(g.dfainit.index))
-    for s in g.dfastates.itervalues():
+    for s in g.dfastates.values():
         for e in s.edges:
             of.write('n{0} -> n{1} [ label=" {2}" ]\n'.format(
                 s.index, e.target.index, get_charset_desc(e.charset)))
@@ -71,10 +71,10 @@ def dfa_to_dot(g, dot_path, output_dot_path, output_png_path):
 
 def lalr_to_csv(g, csv_path):
     writer = csv.writer(open(csv_path, 'wb'), dialect='excel')
-    writer.writerow([""] + [s.id for s in g.symbols.itervalues()])
-    for s in g.lalrstates.itervalues():
+    writer.writerow([""] + [s.id for s in g.symbols.values()])
+    for s in g.lalrstates.values():
         row = ["{0}".format(s.index)]
-        for sym in xrange(len(g.symbols)):
+        for sym in range(len(g.symbols)):
             if sym in s.actions:
                 a = s.actions[sym]
                 if a.type == LALRActionType.SHIFT:
@@ -98,7 +98,7 @@ def main():
                "data/temp_operator_dfa.dot",
                "data/temp_operator_dfa.png")
     lalr_to_csv(g, "data/temp_operator_lalr.csv")
-    print "done"
+    print("done")
 
 
 if __name__ == "__main__":

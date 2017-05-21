@@ -16,7 +16,7 @@ def main():
         tree = pyauparser.parse_string_to_tree(g, "-2*(3+4)-5")
         tree.dump()
     except pyauparser.ParseError as e:
-        print e
+        print(e)
 
 
 if __name__ == "__main__":

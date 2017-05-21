@@ -1,7 +1,7 @@
 import os
 import sys
-import parser
-import tree
+from . import parser
+from . import tree
 
 
 class ParseError(Exception):

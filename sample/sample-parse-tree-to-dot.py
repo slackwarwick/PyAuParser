@@ -76,14 +76,14 @@ def parse_and_write_dot_png(g, src_path, dot_path, png_path,
 
     ret = p.parse_all(builder_p)
     if ret != pyauparser.ParseResultType.ACCEPT:
-        print p.error_info
+        print(p.error_info)
         return
 
-    print "* SRC:", src_path
+    print("* SRC:", src_path)
     result = builder.result
     result.dump()
     export_to_dot(result, r"dot.exe", dot_path, png_path)
-    print
+    print()
 
 
 def main():
