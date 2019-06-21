@@ -2,6 +2,51 @@ import os
 import sys
 from . import grammar
 
+class Buffer(object):
+    """Encapsulation of the data buffer
+    """
+
+    def __init__(self, file, is_unicode):
+        self.is_unicode = is_unicode
+        self.file = file
+        self.reset()
+
+    def reset(self):
+        self.buf = str() if self.is_unicode else bytes()
+        self.buf_cur = 0
+        self.buf_remain = 0
+
+    def fill(self):
+        if self.buf_cur >= 4096:
+            self.buf = self.buf[self.buf_cur:]
+            self.buf_cur = 0
+        self.buf += self.file.read(4096) # !!! FIXME: concat bytes and str
+        self.buf_remain = len(self.buf) - self.buf_cur
+
+    def peek_char(self, incr):
+        if incr < self.buf_remain:
+            return self.buf[self.buf_cur + incr]
+        else:
+            self.fill()
+            if incr < self.buf_remain:
+                return self.buf[self.buf_cur + incr]
+            else:
+                return None
+
+    def code(self, char):
+        return ord(char) if self.is_unicode else char
+
+    def get_data(self, data_size):
+        return self.buf[self.buf_cur:self.buf_cur + data_size]
+
+    def find_eol(self, start, size):
+        eol = '\n' if self.is_unicode else b'\n'
+        return self.buf.find(eol, start, self.buf_cur + size)
+
+    def seek_forward(self, value):
+        self.buf_cur += value
+        self.buf_remain -= value
+
 
 class Token(object):
     """Token which is a result from Lexer
@@ -47,31 +92,17 @@ class Lexer(object):
         self._load(io.StringIO(s), s is str)
 
     def _load(self, file, is_unicode):
-        self.file = file
-        self.is_unicode = is_unicode
-        self.buf = str() if is_unicode else bytes()
-        self.buf_cur = 0
-        self.buf_remain = 0
+        self.buffer = Buffer(file, is_unicode)
         self.line = 1
         self.column = 1
         self.group_stack = []
 
-    def _load_buffer(self):
-        # shrink buffer
-        if self.buf_cur >= 4096:
-            self.buf = self.buf[self.buf_cur:]
-            self.buf_cur = 0
-        # read into buffer
-        self.buf += self.file.read(4096)
-        self.buf_remain = len(self.buf) - self.buf_cur
-
     def _consume_buffer(self, n):
         # update line, column position
-        start = self.buf_cur
+        start = self.buffer.buf_cur
         new_line_i = -1
         while True:
-            eol = '\n' if self.is_unicode else b'\n'
-            i = self.buf.find(eol, start, self.buf_cur + n)
+            i = self.buffer.find_eol(start, n)
             if i != -1:
                 start = new_line_i = i + 1
                 self.line += 1
@@ -79,16 +110,13 @@ class Lexer(object):
                 if new_line_i == -1:
                     self.column += n
                 else:
-                    self.column = 1 + self.buf_cur + n - new_line_i
+                    self.column = 1 + self.buffer.buf_cur + n - new_line_i
                 break
         # manipulate buffer
-        if n < self.buf_remain:
-            self.buf_cur += n
-            self.buf_remain -= n
+        if n < self.buffer.buf_remain:
+            self.buffer.seek_forward(n)
         else:
-            self.buf = str() if self.is_unicode else bytes()
-            self.buf_cur = 0
-            self.buf_remain = 0
+            self.buffer.reset()
 
     @property
     def position(self):
@@ -102,18 +130,12 @@ class Lexer(object):
         cur = 0
         hit_symbol = None
         while True:
-            if cur < self.buf_remain:           # peek 1 char
-                c = self.buf[self.buf_cur + cur]
-            else:
-                self._load_buffer()
-                if cur < self.buf_remain:
-                    c = self.buf[self.buf_cur + cur]
-                else:
-                    break                       # if EOF
+            c = self.buffer.peek_char(cur)
+            if not c:
+                break
             cur += 1
-
             next_index = -1                     # find next state
-            c_ord = ord(c) if self.is_unicode else c
+            c_ord = self.buffer.code(c)
             for (r_min, r_max), target_index, target in state.edges_lookup:
                 if c_ord >= r_min and c_ord <= r_max:
                     next_index = target_index
@@ -134,14 +156,11 @@ class Lexer(object):
                     hit_cur = cur
 
         if hit_symbol:
-            lexeme = self.buf[self.buf_cur:self.buf_cur + hit_cur]
-            return Token(hit_symbol, lexeme, self.position)
+            return Token(hit_symbol, self.buffer.get_data(hit_cur), self.position)
+        elif cur == 0:
+            return Token(self.grammar.symbol_EOF, "", self.position)
         else:
-            if cur == 0:
-                return Token(self.grammar.symbol_EOF, "", self.position)
-            else:
-                lexeme = self.buf[self.buf_cur:self.buf_cur + cur]
-                return Token(self.grammar.symbol_Error, lexeme, self.position)
+            return Token(self.grammar.symbol_Error, self.buffer.get_data(cur), self.position)
 
     def read_token(self):
         """ Read next token and return it.
