@@ -31,8 +31,7 @@ class Lexer(object):
         """ Load a file to lexer.
             File_or_path could be file object or file name.
         """
-        if (isinstance(file_or_path, str) or
-            isinstance(file_or_path, str)):
+        if (isinstance(file_or_path, str)):
             import codecs
             if encoding:
                 self._load(codecs.open(file_or_path, encoding=encoding), True)
@@ -50,7 +49,7 @@ class Lexer(object):
     def _load(self, file, is_unicode):
         self.file = file
         self.is_unicode = is_unicode
-        self.buf = "" if is_unicode else str()
+        self.buf = str() if is_unicode else bytes()
         self.buf_cur = 0
         self.buf_remain = 0
         self.line = 1
@@ -71,7 +70,8 @@ class Lexer(object):
         start = self.buf_cur
         new_line_i = -1
         while True:
-            i = self.buf.find("\n", start, self.buf_cur + n)
+            eol = '\n' if self.is_unicode else b'\n'
+            i = self.buf.find(eol, start, self.buf_cur + n)
             if i != -1:
                 start = new_line_i = i + 1
                 self.line += 1
@@ -86,7 +86,7 @@ class Lexer(object):
             self.buf_cur += n
             self.buf_remain -= n
         else:
-            self.buf = "" if self.is_unicode else str()
+            self.buf = str() if self.is_unicode else bytes()
             self.buf_cur = 0
             self.buf_remain = 0
 
@@ -113,7 +113,7 @@ class Lexer(object):
             cur += 1
 
             next_index = -1                     # find next state
-            c_ord = ord(c)
+            c_ord = ord(c) if self.is_unicode else c
             for (r_min, r_max), target_index, target in state.edges_lookup:
                 if c_ord >= r_min and c_ord <= r_max:
                     next_index = target_index
@@ -193,7 +193,7 @@ class Lexer(object):
                     top[1] = top[1] + token.lexeme
                     self._consume_buffer(len(token.lexeme))
                 else:
-                    top[1] = top[1] + token.lexeme[0]
+                    top[1] = top[1] + token.lexeme[0:1]
                     self._consume_buffer(1)
 
     def read_token_all(self):
