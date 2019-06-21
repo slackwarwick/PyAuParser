@@ -267,8 +267,7 @@ class Grammar(object):
         """Load grammar information from file.
            http://goldparser.org/doc/egt/index.htm
         """
-        if (isinstance(file_or_path, str) or
-            isinstance(file_or_path, str)):
+        if (isinstance(file_or_path, str)):
             with open(file_or_path, "rb") as file:
                 return Grammar._load(file)
         else:
@@ -282,36 +281,36 @@ class Grammar(object):
 
         def read_byte():
             c = f.read(1)
-            return c[0] if len(c) == 1 else None
+            return c if len(c) == 1 else None
 
         def read_bool():
             c = f.read(1)
-            return ord(c[0]) == 1 if len(c) == 1 else None
+            return c[0] == 1 if len(c) == 1 else None
 
         def read_short():
             c = f.read(2)
-            return ord(c[0]) + ord(c[1]) * 256 if len(c) == 2 else None
+            return c[0] + c[1] * 256 if len(c) == 2 else None
 
         def read_string():
-            s = ""
+            s = bytes()
             while True:
                 c = f.read(2)
-                if len(c) < 2 or (ord(c[0]) == 0 and ord(c[1]) == 0):
+                if len(c) < 2 or (c[0] == 0 and c[1] == 0):
                     break
                 s += c
             return s.decode("utf-16le")
 
         def read_value():
             t = f.read(1)
-            if   t == 'E':
+            if   t == b'E':
                 return read_empty()
-            elif t == 'b':
+            elif t == b'b':
                 return read_byte()
-            elif t == 'B':
+            elif t == b'B':
                 return read_bool()
-            elif t == 'I':
+            elif t == b'I':
                 return read_short()
-            elif t == 'S':
+            elif t == b'S':
                 return read_string()
             else:
                 return None
@@ -323,44 +322,44 @@ class Grammar(object):
             raise Exception("Unknown Header: " + header)
 
         # read records
-        while read_byte() == 'M':
+        while read_byte() == b'M':
             v = []
             for x in range(read_short()):
                 v.append(read_value())
             t = v[0] if len(v) > 0 else None
-            if   t == 'p':  # Property
+            if   t == b'p':  # Property
                 grm.properties[v[1]] = Property(v[1], v[2], v[3])
-            elif t == 't':  # Table Counts
+            elif t == b't':  # Table Counts
                 tablecounts = tuple(v[1:])
-            elif t == 'c':  # Character Set Table
+            elif t == b'c':  # Character Set Table
                 grm.charsets[v[1]] = CharacterSet(
                     v[1], v[2],
                     tuple([(v[i * 2 + 5], v[i * 2 + 6]) for i in range(v[3])]))
-            elif t == 'S':  # Symbol Record
+            elif t == b'S':  # Symbol Record
                 grm.symbols[v[1]] = Symbol(v[1], v[2], v[3])
-            elif t == 'g':  # Group Record
+            elif t == b'g':  # Group Record
                 grm.symbolgroups[v[1]] = SymbolGroup(
                     v[1], v[2], v[3], v[4], v[5], v[6], v[7], tuple(v[10:]))
-            elif t == 'R':  # Production Record
+            elif t == b'R':  # Production Record
                 grm.productions[v[1]] = Production(v[1], v[2], tuple(v[4:]))
-            elif t == 'I':  # Initial States Record
+            elif t == b'I':  # Initial States Record
                 grm.dfainit, grm.lalrinit = v[1:]
-            elif t == 'D':  # DFA State Record
+            elif t == b'D':  # DFA State Record
                 grm.dfastates[v[1]] = DFAState(
                     v[1],
                     v[3] if v[2] else None,
                     tuple([DFAEdge(v[i * 3 + 5], v[i * 3 + 6])
-                           for i in range((len(v) - 5) / 3)]))
-            elif t == 'L':  # LALR State Record
+                           for i in range(int((len(v) - 5) / 3))]))
+            elif t == b'L':  # LALR State Record
                 grm.lalrstates[v[1]] = LALRState(
                     v[1],
                     dict([(v[i * 4 + 3],
                            LALRAction(v[i * 4 + 3],
                                       v[i * 4 + 4],
                                       v[i * 4 + 5]))
-                          for i in range((len(v) - 3) / 4)]))
+                          for i in range(int((len(v) - 3) / 4))]))
             else:
-                raise Exception("Unknown type: " + t)
+                raise Exception("Unknown type: " + t.decode("utf-16le"))
 
         # check read counts
         readcounts = (len(grm.symbols),
