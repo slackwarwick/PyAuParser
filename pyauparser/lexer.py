@@ -20,7 +20,7 @@ class Buffer(object):
         if self.buf_cur >= 4096:
             self.buf = self.buf[self.buf_cur:]
             self.buf_cur = 0
-        self.buf += self.file.read(4096) # !!! FIXME: concat bytes and str
+        self.buf += self.file.read(4096)
         self.buf_remain = len(self.buf) - self.buf_cur
 
     def peek_char(self, incr):
@@ -89,7 +89,7 @@ class Lexer(object):
         """ Load a string to lexer.
         """
         import io
-        self._load(io.StringIO(s), s is str)
+        self._load(io.StringIO(s), True) # TODO: add load_bytes or similar
 
     def _load(self, file, is_unicode):
         self.buffer = Buffer(file, is_unicode)
