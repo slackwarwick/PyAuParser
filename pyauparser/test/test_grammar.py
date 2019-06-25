@@ -19,7 +19,7 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(len(self.grammar.lalrstates), 19)
 
     def test_export(self):
-        with open("temp_operator_grammar.py", "wb") as f:
+        with open("temp_operator_grammar.py", "w") as f:
             self.grammar.export_to_py(f)
         import temp_operator_grammar
         grammar2 = temp_operator_grammar.load()
